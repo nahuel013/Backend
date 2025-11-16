@@ -1,0 +1,39 @@
+<h1>{{title}}</h1>
+
+<section>
+	<h2>Productos</h2>
+	{{#if products.length}}
+	<table border="1" cellpadding="6" cellspacing="0">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Título</th>
+				<th>Categoría</th>
+				<th>Precio</th>
+				<th>Stock</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each products}}
+			<tr>
+				<td>{{this.id}}</td>
+				<td>{{this.title}}</td>
+				<td>{{this.category}}</td>
+				<td>${{this.price}}</td>
+				<td>{{this.stock}}</td>
+			</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	{{else}}
+	<p>No hay productos cargados aún.</p>
+	{{/if}}
+</section>
+
+<section style="margin-top:24px;">
+	<h2>Probar eventos</h2>
+	<button id="btnPing">Enviar ping</button>
+	<pre id="log" style="background:#111;color:#0f0;padding:12px;min-height:120px;overflow:auto;"></pre>
+</section>
+
+

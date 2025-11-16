@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>{{title}}</title>
+	<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+	<header style="padding:16px; border-bottom:1px solid #ddd; display:flex; gap:16px;">
+		<a href="/home">Home</a>
+		<a href="/realtime">Realtime</a>
+		<a href="/">API</a>
+	</header>
+
+	<main style="padding:16px;">
+		{{{ body }}}
+	</main>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="/static/js/client.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,8 @@
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
+a { text-decoration: none; color: #0b5ed7; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; }
+input { padding: 6px 8px; }
+ul { padding-left: 18px; }
+
+
