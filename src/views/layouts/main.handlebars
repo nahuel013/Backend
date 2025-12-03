@@ -7,10 +7,16 @@
 	<link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-	<header style="padding:16px; border-bottom:1px solid #ddd; display:flex; gap:16px;">
-		<a href="/home">Home</a>
-		<a href="/realtime">Realtime</a>
-		<a href="/">API</a>
+	<header style="padding:16px; border-bottom:1px solid #ddd; display:flex; gap:16px; align-items: center; justify-content: space-between;">
+		<div style="display: flex; gap: 16px;">
+			<a href="/products" style="text-decoration: none; color: #007bff; font-weight: bold;">Productos</a>
+			<a href="/home" style="text-decoration: none; color: #333;">Home</a>
+			<a href="/realtime" style="text-decoration: none; color: #333;">Realtime</a>
+			<a href="/" style="text-decoration: none; color: #333;">API</a>
+		</div>
+		<div id="cartLink" style="display: none;">
+			<a href="#" id="cartLinkAnchor" style="text-decoration: none; color: #28a745; font-weight: bold;">🛒 Ver Carrito</a>
+		</div>
 	</header>
 
 	<main style="padding:16px;">
@@ -19,6 +25,20 @@
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/static/js/client.js"></script>
+	<script>
+		// Mostrar enlace del carrito si existe uno guardado
+		window.addEventListener('DOMContentLoaded', () => {
+			const cartId = localStorage.getItem('cartId');
+			if (cartId) {
+				const cartLink = document.getElementById('cartLink');
+				const cartLinkAnchor = document.getElementById('cartLinkAnchor');
+				if (cartLink && cartLinkAnchor) {
+					cartLink.style.display = 'block';
+					cartLinkAnchor.href = `/carts/${cartId}`;
+				}
+			}
+		});
+	</script>
 </body>
 </html>
 

@@ -1,0 +1,181 @@
+<h1>{{title}}</h1>
+
+{{#if cart}}
+<section style="max-width: 1000px; margin: 0 auto;">
+	<h2>Carrito de Compras</h2>
+	<p>ID del carrito: <strong>{{cart._id}}</strong></p>
+	
+	{{#if cart.products.length}}
+	<div style="margin-bottom: 30px;">
+		<table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+			<thead>
+				<tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+					<th style="padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6;">Producto</th>
+					<th style="padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6;">Precio Unitario</th>
+					<th style="padding: 12px; text-align: center; border-bottom: 1px solid #dee2e6;">Cantidad</th>
+					<th style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">Subtotal</th>
+					<th style="padding: 12px; text-align: center; border-bottom: 1px solid #dee2e6;">Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each cart.products}}
+				<tr style="border-bottom: 1px solid #dee2e6;">
+					<td style="padding: 15px;">
+						<div style="display: flex; align-items: center; gap: 15px;">
+							{{#if this.product.thumbnails.[0]}}
+							<img src="{{this.product.thumbnails.[0]}}" alt="{{this.product.title}}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
+							{{else}}
+							<div style="width: 80px; height: 80px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8em;">
+								Sin imagen
+							</div>
+							{{/if}}
+							<div>
+								<h3 style="margin: 0 0 5px 0; font-size: 1.1em;">
+									<a href="/products/{{this.product._id}}" style="text-decoration: none; color: #007bff;">{{this.product.title}}</a>
+								</h3>
+								<p style="margin: 0; color: #666; font-size: 0.9em;">{{this.product.category}}</p>
+								<p style="margin: 5px 0 0 0; color: #999; font-size: 0.85em;">Código: {{this.product.code}}</p>
+							</div>
+						</div>
+					</td>
+					<td style="padding: 15px; font-weight: bold; color: #28a745;">${{this.product.price}}</td>
+					<td style="padding: 15px; text-align: center;">
+						<div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+							<button onclick="updateQuantity('{{../cart._id}}', '{{this.product._id}}', {{this.quantity}} - 1)" 
+								style="width: 30px; height: 30px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">-</button>
+							<span style="min-width: 40px; display: inline-block; font-weight: bold;">{{this.quantity}}</span>
+							<button onclick="updateQuantity('{{../cart._id}}', '{{this.product._id}}', {{this.quantity}} + 1)" 
+								style="width: 30px; height: 30px; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px;">+</button>
+						</div>
+					</td>
+					<td style="padding: 15px; text-align: right; font-weight: bold; font-size: 1.1em; color: #28a745;">
+						${{multiply this.product.price this.quantity}}
+					</td>
+					<td style="padding: 15px; text-align: center;">
+						<button onclick="removeProduct('{{../cart._id}}', '{{this.product._id}}')" 
+							style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+							Eliminar
+						</button>
+					</td>
+				</tr>
+				{{/each}}
+			</tbody>
+			<tfoot>
+				<tr style="background: #f8f9fa; border-top: 2px solid #dee2e6;">
+					<td colspan="3" style="padding: 15px; text-align: right; font-weight: bold; font-size: 1.2em;">
+						Total:
+					</td>
+					<td style="padding: 15px; text-align: right; font-weight: bold; font-size: 1.5em; color: #28a745;">
+						${{total}}
+					</td>
+					<td></td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+	
+	<div style="display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 20px;">
+		<button onclick="clearCart('{{cart._id}}')" 
+			style="padding: 12px 24px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;">
+			Vaciar Carrito
+		</button>
+		<a href="/products" 
+			style="padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 1em; display: inline-block;">
+			Seguir Comprando
+		</a>
+	</div>
+	{{else}}
+	<div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;">
+		<p style="font-size: 1.2em; color: #666; margin-bottom: 20px;">Tu carrito está vacío</p>
+		<a href="/products" 
+			style="padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 1em; display: inline-block;">
+			Ir a Productos
+		</a>
+	</div>
+	{{/if}}
+</section>
+{{else}}
+<section>
+	<p>Carrito no encontrado.</p>
+	<a href="/products">Volver a productos</a>
+</section>
+{{/if}}
+
+<script>
+	async function updateQuantity(cartId, productId, newQuantity) {
+		if (newQuantity < 1) {
+			if (confirm('¿Deseas eliminar este producto del carrito?')) {
+				await removeProduct(cartId, productId);
+			}
+			return;
+		}
+		
+		try {
+			const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ quantity: newQuantity })
+			});
+			
+			const data = await response.json();
+			
+			if (data.success) {
+				location.reload();
+			} else {
+				alert('Error: ' + data.error);
+			}
+		} catch (error) {
+			alert('Error: ' + error.message);
+			console.error('Error:', error);
+		}
+	}
+	
+	async function removeProduct(cartId, productId) {
+		if (!confirm('¿Estás seguro de eliminar este producto del carrito?')) {
+			return;
+		}
+		
+		try {
+			const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
+				method: 'DELETE'
+			});
+			
+			const data = await response.json();
+			
+			if (data.success) {
+				location.reload();
+			} else {
+				alert('Error: ' + data.error);
+			}
+		} catch (error) {
+			alert('Error: ' + error.message);
+			console.error('Error:', error);
+		}
+	}
+	
+	async function clearCart(cartId) {
+		if (!confirm('¿Estás seguro de vaciar todo el carrito?')) {
+			return;
+		}
+		
+		try {
+			const response = await fetch(`/api/carts/${cartId}`, {
+				method: 'DELETE'
+			});
+			
+			const data = await response.json();
+			
+			if (data.success) {
+				location.reload();
+			} else {
+				alert('Error: ' + data.error);
+			}
+		} catch (error) {
+			alert('Error: ' + error.message);
+			console.error('Error:', error);
+		}
+	}
+</script>
+

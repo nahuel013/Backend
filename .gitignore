@@ -8,6 +8,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+NUL
 
 # Archivos de datos (opcional - descomenta la siguiente línea si no quieres subir los JSON)
 # data/*.json

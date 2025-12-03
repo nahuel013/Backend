@@ -2,15 +2,68 @@
 
 <section>
 	<h2>Productos</h2>
+	
+	<!-- Filtros y ordenamiento -->
+	<div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+		<form method="GET" action="/home" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: end;">
+			<div>
+				<label for="query">Buscar:</label>
+				<input type="text" name="query" id="query" value="{{filters.query}}" placeholder="Título, descripción..." style="padding: 5px; width: 200px;">
+			</div>
+			
+			<div>
+				<label for="category">Categoría:</label>
+				<select name="category" id="category" style="padding: 5px;">
+					<option value="">Todas</option>
+					{{#each categories}}
+					<option value="{{this}}" {{#if (eq ../filters.category this)}}selected{{/if}}>{{this}}</option>
+					{{/each}}
+				</select>
+			</div>
+			
+			<div>
+				<label for="status">Disponibilidad:</label>
+				<select name="status" id="status" style="padding: 5px;">
+					<option value="">Todas</option>
+					<option value="true" {{#if (eq filters.status "true")}}selected{{/if}}>Disponible</option>
+					<option value="false" {{#if (eq filters.status "false")}}selected{{/if}}>No disponible</option>
+				</select>
+			</div>
+			
+			<div>
+				<label for="sort">Ordenar por precio:</label>
+				<select name="sort" id="sort" style="padding: 5px;">
+					<option value="">Sin ordenar</option>
+					<option value="asc" {{#if (eq filters.sort "asc")}}selected{{/if}}>Menor a mayor</option>
+					<option value="desc" {{#if (eq filters.sort "desc")}}selected{{/if}}>Mayor a menor</option>
+				</select>
+			</div>
+			
+			<div>
+				<label for="limit">Productos por página:</label>
+				<select name="limit" id="limit" style="padding: 5px;">
+					<option value="5" {{#if (eq pagination.limit 5)}}selected{{/if}}>5</option>
+					<option value="10" {{#if (eq pagination.limit 10)}}selected{{/if}}>10</option>
+					<option value="20" {{#if (eq pagination.limit 20)}}selected{{/if}}>20</option>
+					<option value="50" {{#if (eq pagination.limit 50)}}selected{{/if}}>50</option>
+				</select>
+			</div>
+			
+			<button type="submit" style="padding: 5px 15px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Filtrar</button>
+			<a href="/home" style="padding: 5px 15px; background: #6c757d; color: white; text-decoration: none; border-radius: 3px; display: inline-block;">Limpiar</a>
+		</form>
+	</div>
+	
 	{{#if products.length}}
-	<table border="1" cellpadding="6" cellspacing="0">
+	<table border="1" cellpadding="6" cellspacing="0" style="width: 100%; border-collapse: collapse;">
 		<thead>
-			<tr>
+			<tr style="background: #e9ecef;">
 				<th>ID</th>
 				<th>Título</th>
 				<th>Categoría</th>
 				<th>Precio</th>
 				<th>Stock</th>
+				<th>Disponible</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -21,10 +74,28 @@
 				<td>{{this.category}}</td>
 				<td>${{this.price}}</td>
 				<td>{{this.stock}}</td>
+				<td>{{#if this.status}}Sí{{else}}No{{/if}}</td>
 			</tr>
 			{{/each}}
 		</tbody>
 	</table>
+	
+	<!-- Paginación -->
+	<div style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+		{{#if pagination.hasPrevPage}}
+		<a href="/home?page={{pagination.prevPage}}&limit={{pagination.limit}}{{#if filters.query}}&query={{filters.query}}{{/if}}{{#if filters.category}}&category={{filters.category}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.sort}}&sort={{filters.sort}}{{/if}}" 
+		   style="padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">← Anterior</a>
+		{{/if}}
+		
+		<span style="padding: 8px 15px;">
+			Página {{pagination.page}} de {{pagination.totalPages}} ({{pagination.totalProducts}} productos)
+		</span>
+		
+		{{#if pagination.hasNextPage}}
+		<a href="/home?page={{pagination.nextPage}}&limit={{pagination.limit}}{{#if filters.query}}&query={{filters.query}}{{/if}}{{#if filters.category}}&category={{filters.category}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.sort}}&sort={{filters.sort}}{{/if}}" 
+		   style="padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 3px;">Siguiente →</a>
+		{{/if}}
+	</div>
 	{{else}}
 	<p>No hay productos cargados aún.</p>
 	{{/if}}

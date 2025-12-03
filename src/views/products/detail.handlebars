@@ -1,0 +1,146 @@
+<h1>{{title}}</h1>
+
+{{#if product}}
+<section style="max-width: 800px; margin: 0 auto;">
+	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+		<!-- Imágenes -->
+		<div>
+			{{#if product.thumbnails.[0]}}
+			<img src="{{product.thumbnails.[0]}}" alt="{{product.title}}" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+			{{else}}
+			<div style="width: 100%; height: 400px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">
+				Sin imagen disponible
+			</div>
+			{{/if}}
+			
+			{{#if product.thumbnails.length}}
+			<div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+				{{#each product.thumbnails}}
+				<img src="{{this}}" alt="Imagen {{@index}}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid #ddd;" onclick="document.querySelector('img').src = this.src">
+				{{/each}}
+			</div>
+			{{/if}}
+		</div>
+		
+		<!-- Información del producto -->
+		<div>
+			<h2 style="margin: 0 0 15px 0; color: #333; font-size: 2em;">{{product.title}}</h2>
+			
+			<div style="margin-bottom: 20px;">
+				<span style="font-size: 2.5em; font-weight: bold; color: #28a745;">${{product.price}}</span>
+			</div>
+			
+			<div style="margin-bottom: 20px;">
+				<p style="color: #666; line-height: 1.6;">{{product.description}}</p>
+			</div>
+			
+			<div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+				<div style="margin-bottom: 10px;">
+					<strong>Categoría:</strong> 
+					<span style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 0.9em;">{{product.category}}</span>
+				</div>
+				
+				<div style="margin-bottom: 10px;">
+					<strong>Stock disponible:</strong> 
+					<span style="color: {{#if (gt product.stock 0)}}#28a745{{else}}#dc3545{{/if}}; font-weight: bold;">
+						{{product.stock}} unidades
+					</span>
+				</div>
+				
+				<div style="margin-bottom: 10px;">
+					<strong>Código:</strong> {{product.code}}
+				</div>
+				
+				<div>
+					<strong>Estado:</strong> 
+					{{#if product.status}}
+					<span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 0.9em;">Disponible</span>
+					{{else}}
+					<span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 0.9em;">No disponible</span>
+					{{/if}}
+				</div>
+			</div>
+			
+			<div style="display: flex; gap: 10px;">
+				<button onclick="addToCart('{{product._id}}')" 
+					style="flex: 1; padding: 15px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer;"
+					{{#unless product.status}}disabled style="background: #6c757d; cursor: not-allowed;"{{/unless}}>
+					Agregar al carrito
+				</button>
+			</div>
+			
+			<div style="margin-top: 20px;">
+				<a href="/products" style="color: #007bff; text-decoration: none;">← Volver a productos</a>
+			</div>
+		</div>
+	</div>
+</section>
+{{else}}
+<section>
+	<p>Producto no encontrado.</p>
+	<a href="/products">Volver a productos</a>
+</section>
+{{/if}}
+
+<script>
+	// Función para agregar al carrito
+	async function addToCart(productId) {
+		try {
+			// Obtener o crear cartId
+			let cartId = localStorage.getItem('cartId');
+			
+			if (!cartId) {
+				// Crear un nuevo carrito
+				const response = await fetch('/api/carts', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
+				const data = await response.json();
+				if (data.success) {
+					cartId = data.data._id;
+					localStorage.setItem('cartId', cartId);
+				} else {
+					throw new Error('Error al crear carrito');
+				}
+			}
+			
+			// Agregar producto al carrito
+			const addResponse = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			
+			const addData = await addResponse.json();
+			
+			if (addData.success) {
+				alert('Producto agregado al carrito exitosamente');
+				// Actualizar enlace del carrito en el header
+				updateCartLink(cartId);
+				// Opcional: redirigir al carrito
+				if (confirm('¿Deseas ver tu carrito?')) {
+					window.location.href = `/carts/${cartId}`;
+				}
+			} else {
+				throw new Error(addData.error || 'Error al agregar producto');
+			}
+		} catch (error) {
+			alert('Error: ' + error.message);
+			console.error('Error:', error);
+		}
+	}
+	
+	// Función para actualizar el enlace del carrito en el header
+	function updateCartLink(cartId) {
+		const cartLink = document.getElementById('cartLink');
+		const cartLinkAnchor = document.getElementById('cartLinkAnchor');
+		if (cartLink && cartLinkAnchor) {
+			cartLink.style.display = 'block';
+			cartLinkAnchor.href = `/carts/${cartId}`;
+		}
+	}
+</script>
+
